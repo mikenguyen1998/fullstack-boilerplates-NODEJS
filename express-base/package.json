@@ -1,8 +1,10 @@
 {
   "name": "express-base",
   "version": "1.0.0",
-  "private": true,
   "description": "Production-ready Node.js + Express 5 + TypeScript backend boilerplate",
+  "author": "mikenguyen1998",
+  "license": "MIT",
+  "private": true,
   "type": "module",
   "main": "dist/server.js",
   "engines": {

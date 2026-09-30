@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "description": "Production-ready NestJS 11 boilerplate (TypeORM/PostgreSQL, JWT auth, i18n, pino, Swagger)",
   "author": "",
-  "private": true,
   "license": "UNLICENSED",
+  "private": true,
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
