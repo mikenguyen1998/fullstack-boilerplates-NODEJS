@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: ${{ matrix.project }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: react-vite-base
+            lint: lint
+          - project: nextjs-base
+            lint: lint
+          - project: express-base
+            lint: lint
+            pre: npm run prisma:generate
+          - project: nestjs-base
+            lint: lint:check
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
+      - run: cp .env.example .env
+      - run: npm ci
+      - if: matrix.pre
+        run: ${{ matrix.pre }}
+      - run: npm run ${{ matrix.lint }}
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build

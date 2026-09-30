@@ -1,0 +1,12 @@
+{
+  "VALIDATION_FAILED": "Dữ liệu không hợp lệ",
+  "NOT_FOUND": "Không tìm thấy tài nguyên",
+  "CONFLICT": "Tài nguyên đã tồn tại",
+  "BAD_REQUEST": "Yêu cầu không hợp lệ",
+  "UNAUTHORIZED": "Chưa xác thực",
+  "FORBIDDEN": "Bạn không có quyền thực hiện thao tác này",
+  "INVALID_API_KEY": "API key không hợp lệ hoặc bị thiếu",
+  "REQUEST_TIMEOUT": "Yêu cầu quá thời gian xử lý",
+  "TOO_MANY_REQUESTS": "Quá nhiều yêu cầu, vui lòng thử lại sau",
+  "INTERNAL_ERROR": "Lỗi máy chủ nội bộ"
+}

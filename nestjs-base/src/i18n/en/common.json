@@ -1,0 +1,12 @@
+{
+  "VALIDATION_FAILED": "Validation failed",
+  "NOT_FOUND": "Resource not found",
+  "CONFLICT": "Resource already exists",
+  "BAD_REQUEST": "Bad request",
+  "UNAUTHORIZED": "Unauthorized",
+  "FORBIDDEN": "You do not have permission to perform this action",
+  "INVALID_API_KEY": "Invalid or missing API key",
+  "REQUEST_TIMEOUT": "Request timed out",
+  "TOO_MANY_REQUESTS": "Too many requests, please try again later",
+  "INTERNAL_ERROR": "Internal server error"
+}

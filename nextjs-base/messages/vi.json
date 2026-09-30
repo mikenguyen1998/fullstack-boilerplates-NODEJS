@@ -1,0 +1,59 @@
+{
+  "Metadata": {
+    "title": "Next.js Base",
+    "description": "Bộ khung Next.js App Router sẵn sàng cho production"
+  },
+  "Common": {
+    "loading": "Đang tải...",
+    "retry": "Thử lại",
+    "backHome": "Về trang chủ",
+    "language": "Ngôn ngữ",
+    "theme": {
+      "label": "Giao diện",
+      "light": "Sáng",
+      "dark": "Tối",
+      "system": "Hệ thống"
+    }
+  },
+  "Nav": {
+    "home": "Trang chủ",
+    "dashboard": "Bảng điều khiển",
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất"
+  },
+  "Home": {
+    "title": "Bộ khung Next.js App Router",
+    "subtitle": "Next.js 16, React 19, TypeScript, Tailwind CSS v4, next-intl, TanStack Query, Zustand, React Hook Form và Zod.",
+    "getStarted": "Bắt đầu",
+    "goToDashboard": "Tới bảng điều khiển"
+  },
+  "Auth": {
+    "loginTitle": "Chào mừng trở lại",
+    "loginSubtitle": "Đăng nhập vào tài khoản để tiếp tục",
+    "email": "Email",
+    "emailPlaceholder": "ban@example.com",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "••••••••",
+    "submit": "Đăng nhập",
+    "submitting": "Đang đăng nhập...",
+    "loginFailed": "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
+    "validation": {
+      "emailRequired": "Vui lòng nhập email",
+      "emailInvalid": "Email không hợp lệ",
+      "passwordMin": "Mật khẩu phải có ít nhất {min} ký tự"
+    }
+  },
+  "Dashboard": {
+    "title": "Bảng điều khiển",
+    "welcome": "Xin chào, {name}!",
+    "usersTitle": "Người dùng (prefetch trên server)",
+    "empty": "Không có dữ liệu",
+    "loadError": "Không thể tải dữ liệu."
+  },
+  "Errors": {
+    "notFoundTitle": "Không tìm thấy trang",
+    "notFoundDescription": "Trang bạn tìm không tồn tại hoặc đã bị di chuyển.",
+    "errorTitle": "Đã có lỗi xảy ra",
+    "errorDescription": "Có lỗi không mong muốn. Vui lòng thử lại."
+  }
+}

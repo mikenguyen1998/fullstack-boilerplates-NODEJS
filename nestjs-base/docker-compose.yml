@@ -1,0 +1,116 @@
+# Chạy: docker compose up -d --build
+# Chỉ chạy DB cho dev local: docker compose up -d postgres
+name: nestjs-base
+
+services:
+  app:
+    build:
+      context: .
+      target: runtime
+    container_name: nestjs-base-app
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_MIGRATIONS_RUN: 'true'
+      REDIS_HOST: redis
+    ports:
+      - '${PORT:-3000}:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    stop_grace_period: 30s
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: nestjs-base-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-nestjs_base}
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # Các DB khác (bỏ comment khi cần) — nhớ bỏ comment volume tương ứng bên dưới
+  # ---------------------------------------------------------------------------
+
+  # mysql:
+  #   image: mysql:8.4
+  #   container_name: nestjs-base-mysql
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: nestjs_base
+  #   ports: ['3306:3306']
+  #   volumes: [mysql_data:/var/lib/mysql]
+  #   healthcheck:
+  #     test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-proot']
+  #     interval: 5s
+  #     retries: 10
+
+  # mariadb:
+  #   image: mariadb:11
+  #   container_name: nestjs-base-mariadb
+  #   environment:
+  #     MARIADB_ROOT_PASSWORD: root
+  #     MARIADB_DATABASE: nestjs_base
+  #   ports: ['3307:3306']
+  #   volumes: [mariadb_data:/var/lib/mysql]
+
+  # mssql:
+  #   image: mcr.microsoft.com/mssql/server:2022-latest
+  #   container_name: nestjs-base-mssql
+  #   environment:
+  #     ACCEPT_EULA: 'Y'
+  #     MSSQL_SA_PASSWORD: 'YourStrong!Passw0rd'
+  #   ports: ['1433:1433']
+  #   volumes: [mssql_data:/var/opt/mssql]
+
+  # oracle:
+  #   image: gvenzl/oracle-free:23-slim
+  #   container_name: nestjs-base-oracle
+  #   environment:
+  #     ORACLE_PASSWORD: oracle
+  #     APP_USER: app
+  #     APP_USER_PASSWORD: app
+  #   ports: ['1521:1521']
+  #   volumes: [oracle_data:/opt/oracle/oradata]
+
+  # mongodb:
+  #   image: mongo:8
+  #   container_name: nestjs-base-mongo
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: root
+  #   ports: ['27017:27017']
+  #   volumes: [mongo_data:/data/db]
+
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: nestjs-base-redis
+  #   command: ['redis-server', '--appendonly', 'yes']
+  #   ports: ['6379:6379']
+  #   volumes: [redis_data:/data]
+  #   healthcheck:
+  #     test: ['CMD', 'redis-cli', 'ping']
+  #     interval: 5s
+  #     retries: 10
+
+volumes:
+  postgres_data:
+  # mysql_data:
+  # mariadb_data:
+  # mssql_data:
+  # oracle_data:
+  # mongo_data:
+  # redis_data:

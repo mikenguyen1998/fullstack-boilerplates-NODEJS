@@ -1,0 +1,52 @@
+{
+  "common": {
+    "appName": "React Vite Base",
+    "loading": "Đang tải...",
+    "retry": "Thử lại",
+    "backHome": "Về trang chủ",
+    "language": "Ngôn ngữ",
+    "theme": {
+      "label": "Giao diện",
+      "light": "Sáng",
+      "dark": "Tối",
+      "system": "Hệ thống"
+    }
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "dashboard": "Bảng điều khiển",
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất"
+  },
+  "home": {
+    "title": "Bộ khung React sẵn sàng cho production",
+    "subtitle": "React 19, TypeScript, Vite, React Router, TanStack Query, Zustand, i18next, Tailwind CSS.",
+    "cta": "Vào bảng điều khiển"
+  },
+  "dashboard": {
+    "title": "Bảng điều khiển",
+    "welcome": "Chào mừng trở lại, {{name}}!",
+    "users": "Người dùng",
+    "empty": "Không có người dùng nào.",
+    "loadError": "Không thể tải danh sách người dùng."
+  },
+  "auth": {
+    "title": "Đăng nhập vào tài khoản",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "submit": "Đăng nhập",
+    "submitting": "Đang đăng nhập...",
+    "failed": "Đăng nhập thất bại: {{message}}"
+  },
+  "validation": {
+    "required": "Trường này là bắt buộc",
+    "email": "Vui lòng nhập email hợp lệ",
+    "passwordMin": "Mật khẩu phải có ít nhất {{min}} ký tự"
+  },
+  "errors": {
+    "notFoundTitle": "Không tìm thấy trang",
+    "notFoundDesc": "Trang bạn tìm không tồn tại hoặc đã bị di chuyển.",
+    "unexpectedTitle": "Đã xảy ra lỗi",
+    "unexpectedDesc": "Có lỗi không mong muốn xảy ra. Vui lòng thử lại."
+  }
+}
