@@ -19,6 +19,3 @@ export const createRateLimiter = (overrides: Partial<Options> = {}) =>
 
 /** Global API limiter. */
 export const apiRateLimiter = createRateLimiter();
-
-/** Stricter limiter for auth endpoints (brute-force protection). */
-export const authRateLimiter = createRateLimiter({ limit: 20 });

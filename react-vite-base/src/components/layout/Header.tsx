@@ -3,10 +3,7 @@ import { Link, NavLink } from 'react-router';
 
 import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
-import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/config/constants';
-import { useLogoutMutation } from '@/hooks/queries/useAuth';
-import { selectIsAuthenticated, useAuthStore } from '@/stores/auth.store';
 import { cn } from '@/utils/cn';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -19,8 +16,6 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 export function Header() {
   const { t } = useTranslation();
-  const isAuthenticated = useAuthStore(selectIsAuthenticated);
-  const logout = useLogoutMutation();
 
   return (
     <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
@@ -41,20 +36,6 @@ export function Header() {
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
           <ThemeToggle />
-          {isAuthenticated ? (
-            <Button
-              variant="secondary"
-              size="sm"
-              loading={logout.isPending}
-              onClick={() => logout.mutate()}
-            >
-              {t('nav.logout')}
-            </Button>
-          ) : (
-            <Link to={ROUTES.login}>
-              <Button size="sm">{t('nav.login')}</Button>
-            </Link>
-          )}
         </div>
       </div>
     </header>

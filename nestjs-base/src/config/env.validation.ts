@@ -23,8 +23,6 @@ export const envValidationSchema = Joi.object({
   FALLBACK_LANGUAGE: Joi.string().valid('en', 'vi').default('en'),
   THROTTLE_TTL_MS: Joi.number().integer().min(1).default(60000),
   THROTTLE_LIMIT: Joi.number().integer().min(1).default(100),
-  API_KEYS: Joi.string().allow('').default(''),
-  BCRYPT_SALT_ROUNDS: Joi.number().integer().min(4).max(15).default(10),
 
   // ---------- Database (PostgreSQL) ----------
   DB_HOST: Joi.string().required(),
@@ -38,13 +36,6 @@ export const envValidationSchema = Joi.object({
   DB_LOGGING: Joi.boolean().default(false),
   DB_MIGRATIONS_RUN: Joi.boolean().default(false),
   DB_POOL_MAX: Joi.number().integer().min(1).default(10),
-
-  // ---------- JWT ----------
-  JWT_ACCESS_SECRET: Joi.string().min(16).required(),
-  JWT_ACCESS_EXPIRES_IN: Joi.string().default('15m'),
-  JWT_REFRESH_SECRET: Joi.string().min(16).required(),
-  JWT_REFRESH_EXPIRES_IN: Joi.string().default('7d'),
-  JWT_ISSUER: Joi.string().default('nestjs-base'),
 
   // ---------- Redis (tùy chọn) ----------
   REDIS_ENABLED: Joi.boolean().default(false),

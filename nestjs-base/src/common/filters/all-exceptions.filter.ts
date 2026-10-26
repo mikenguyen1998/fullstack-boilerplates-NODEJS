@@ -38,7 +38,7 @@ const DEFAULT_MESSAGE_KEYS: Record<string, string> = {
  * Filter GLOBAL bắt MỌI exception và trả về một error shape thống nhất:
  * { success:false, statusCode, error, message, errors?, path, method, timestamp, requestId }
  *
- * `message` có thể là i18n key (vd: 'auth.INVALID_CREDENTIALS') -> sẽ được dịch
+ * `message` có thể là i18n key (vd: 'users.NOT_FOUND') -> sẽ được dịch
  * theo ngôn ngữ của request (?lang=vi | header x-lang | Accept-Language).
  */
 @Catch()

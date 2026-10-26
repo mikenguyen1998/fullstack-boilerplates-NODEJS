@@ -2,8 +2,6 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Role } from '../../common/enums';
-import { appConfig } from '../../config/app.config';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
@@ -22,7 +20,6 @@ describe('UsersService', () => {
     id: '5c1c8a0e-0000-4000-8000-000000000001',
     email: 'john@example.com',
     fullName: 'John Doe',
-    role: Role.USER,
     isActive: true,
   });
 
@@ -40,7 +37,6 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         { provide: getRepositoryToken(User), useValue: repo },
-        { provide: appConfig.KEY, useValue: { bcryptSaltRounds: 4 } },
       ],
     }).compile();
 
@@ -48,21 +44,18 @@ describe('UsersService', () => {
   });
 
   describe('create', () => {
-    it('hashes the password and saves the user', async () => {
+    it('normalizes the email and saves the user', async () => {
       repo.exists.mockResolvedValue(false);
       repo.save.mockResolvedValue(user);
       repo.findOne.mockResolvedValue(user);
 
       const result = await service.create({
         email: 'John@Example.com',
-        password: 'Str0ngPass',
         fullName: 'John Doe',
       });
 
       const created = repo.create.mock.calls[0][0] as Partial<User>;
       expect(created.email).toBe('john@example.com');
-      expect(created.password).not.toBe('Str0ngPass');
-      expect(created.password).toMatch(/^\$2[aby]\$/);
       expect(result).toBe(user);
     });
 
@@ -71,7 +64,6 @@ describe('UsersService', () => {
       await expect(
         service.create({
           email: 'john@example.com',
-          password: 'Str0ngPass',
           fullName: 'John',
         }),
       ).rejects.toBeInstanceOf(ConflictException);

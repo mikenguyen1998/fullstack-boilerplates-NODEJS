@@ -21,12 +21,6 @@ export default function HomePage({ params }: PageProps<'/[locale]'>) {
         <p className="max-w-2xl text-lg text-muted-foreground">{t('subtitle')}</p>
         <div className="flex gap-3">
           <Link
-            href={ROUTES.login}
-            className="inline-flex h-11 items-center rounded-md bg-primary px-6 font-medium text-primary-foreground"
-          >
-            {t('getStarted')}
-          </Link>
-          <Link
             href={ROUTES.dashboard}
             className="inline-flex h-11 items-center rounded-md border border-border px-6 font-medium hover:bg-muted"
           >

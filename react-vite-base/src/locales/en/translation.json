@@ -14,9 +14,7 @@
   },
   "nav": {
     "home": "Home",
-    "dashboard": "Dashboard",
-    "login": "Sign in",
-    "logout": "Sign out"
+    "dashboard": "Dashboard"
   },
   "home": {
     "title": "Production-ready React boilerplate",
@@ -25,23 +23,14 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome back, {{name}}!",
+    "welcome": "Welcome to your dashboard.",
     "users": "Users",
     "empty": "No users found.",
     "loadError": "Could not load users."
   },
-  "auth": {
-    "title": "Sign in to your account",
-    "email": "Email",
-    "password": "Password",
-    "submit": "Sign in",
-    "submitting": "Signing in...",
-    "failed": "Sign in failed: {{message}}"
-  },
   "validation": {
     "required": "This field is required",
-    "email": "Please enter a valid email address",
-    "passwordMin": "Password must be at least {{min}} characters"
+    "email": "Please enter a valid email address"
   },
   "errors": {
     "notFoundTitle": "Page not found",

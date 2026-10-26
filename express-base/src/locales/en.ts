@@ -10,17 +10,6 @@ export const en = {
     badRequest: 'Bad request',
     conflict: 'Resource already exists',
   },
-  auth: {
-    registered: 'Registered successfully',
-    loggedIn: 'Logged in successfully',
-    refreshed: 'Token refreshed',
-    invalidCredentials: 'Invalid email or password',
-    emailTaken: 'Email is already registered',
-    unauthorized: 'Authentication required',
-    invalidToken: 'Invalid or expired token',
-    forbidden: 'You do not have permission to perform this action',
-    inactive: 'Account is disabled',
-  },
   user: {
     notFound: 'User not found',
     updated: 'User updated successfully',

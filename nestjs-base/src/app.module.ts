@@ -20,11 +20,7 @@ import type { IncomingMessage } from 'http';
 
 import { LANG_HEADER, REQUEST_ID_HEADER } from './common/constants';
 import { AllExceptionsFilter } from './common/filters';
-import {
-  JwtAuthGuard,
-  RolesGuard,
-  ThrottlerBehindProxyGuard,
-} from './common/guards';
+import { ThrottlerBehindProxyGuard } from './common/guards';
 import {
   LoggingInterceptor,
   TimeoutInterceptor,
@@ -36,11 +32,9 @@ import {
   appConfig,
   databaseConfig,
   envValidationSchema,
-  jwtConfig,
   redisConfig,
 } from './config';
 import { DatabaseModule } from './database/database.module';
-import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -52,7 +46,7 @@ import { UsersModule } from './modules/users/users.module';
       cache: true,
       expandVariables: true,
       envFilePath: ['.env.local', '.env'],
-      load: [appConfig, databaseConfig, jwtConfig, redisConfig],
+      load: [appConfig, databaseConfig, redisConfig],
       validationSchema: envValidationSchema,
       validationOptions: { abortEarly: false, allowUnknown: true },
     }),
@@ -128,13 +122,10 @@ import { UsersModule } from './modules/users/users.module';
     // ---------- Feature modules ----------
     HealthModule,
     UsersModule,
-    AuthModule,
   ],
   providers: [
-    // Guards (thứ tự thực thi: Throttler -> JWT -> Roles)
+    // Rate limiting
     { provide: APP_GUARD, useClass: ThrottlerBehindProxyGuard },
-    { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: RolesGuard },
 
     // Pipes
     { provide: APP_PIPE, useFactory: createValidationPipe },

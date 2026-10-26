@@ -17,9 +17,7 @@
   },
   "Nav": {
     "home": "Trang chủ",
-    "dashboard": "Bảng điều khiển",
-    "login": "Đăng nhập",
-    "logout": "Đăng xuất"
+    "dashboard": "Bảng điều khiển"
   },
   "Home": {
     "title": "Bộ khung Next.js App Router",
@@ -27,25 +25,8 @@
     "getStarted": "Bắt đầu",
     "goToDashboard": "Tới bảng điều khiển"
   },
-  "Auth": {
-    "loginTitle": "Chào mừng trở lại",
-    "loginSubtitle": "Đăng nhập vào tài khoản để tiếp tục",
-    "email": "Email",
-    "emailPlaceholder": "ban@example.com",
-    "password": "Mật khẩu",
-    "passwordPlaceholder": "••••••••",
-    "submit": "Đăng nhập",
-    "submitting": "Đang đăng nhập...",
-    "loginFailed": "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
-    "validation": {
-      "emailRequired": "Vui lòng nhập email",
-      "emailInvalid": "Email không hợp lệ",
-      "passwordMin": "Mật khẩu phải có ít nhất {min} ký tự"
-    }
-  },
   "Dashboard": {
     "title": "Bảng điều khiển",
-    "welcome": "Xin chào, {name}!",
     "usersTitle": "Người dùng (prefetch trên server)",
     "empty": "Không có dữ liệu",
     "loadError": "Không thể tải dữ liệu."
