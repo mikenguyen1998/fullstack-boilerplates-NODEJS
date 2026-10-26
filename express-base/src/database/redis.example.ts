@@ -3,7 +3,7 @@
  *  OPTIONAL: Redis with ioredis (commented out — not used by default)
  * ============================================================================
  *
- * Typical uses: caching, shared rate-limit store, refresh-token blacklist, queues (BullMQ).
+ * Typical uses: caching, shared rate-limit store, queues (BullMQ).
  *
  * How to enable:
  *   1. npm install ioredis

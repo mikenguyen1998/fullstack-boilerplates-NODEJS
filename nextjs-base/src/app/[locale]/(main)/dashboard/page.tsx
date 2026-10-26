@@ -9,7 +9,6 @@ import { serverFetch } from '@/lib/server-fetch';
 import type { User } from '@/types';
 
 import { UserList } from './_components/user-list';
-import { Welcome } from './_components/welcome';
 
 export async function generateMetadata({
   params,
@@ -37,7 +36,6 @@ export default async function DashboardPage({ params }: PageProps<'/[locale]/das
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
-        <Welcome />
       </div>
       <HydrationBoundary state={dehydrate(queryClient)}>
         <UserList />

@@ -7,8 +7,6 @@ import { ROUTES } from '@/config/constants';
 import { env } from '@/config/env';
 import { Link } from '@/i18n/navigation';
 
-import { UserMenu } from './user-menu';
-
 export function Header() {
   const t = useTranslations('Nav');
 
@@ -31,7 +29,6 @@ export function Header() {
             <LanguageSwitcher />
           </Suspense>
           <ThemeToggle />
-          <UserMenu />
         </div>
       </div>
     </header>

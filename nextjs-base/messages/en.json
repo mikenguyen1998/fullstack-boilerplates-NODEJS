@@ -17,9 +17,7 @@
   },
   "Nav": {
     "home": "Home",
-    "dashboard": "Dashboard",
-    "login": "Sign in",
-    "logout": "Sign out"
+    "dashboard": "Dashboard"
   },
   "Home": {
     "title": "Next.js App Router Boilerplate",
@@ -27,25 +25,8 @@
     "getStarted": "Get started",
     "goToDashboard": "Go to dashboard"
   },
-  "Auth": {
-    "loginTitle": "Welcome back",
-    "loginSubtitle": "Sign in to your account to continue",
-    "email": "Email",
-    "emailPlaceholder": "you@example.com",
-    "password": "Password",
-    "passwordPlaceholder": "••••••••",
-    "submit": "Sign in",
-    "submitting": "Signing in...",
-    "loginFailed": "Sign in failed. Please check your credentials.",
-    "validation": {
-      "emailRequired": "Email is required",
-      "emailInvalid": "Email is invalid",
-      "passwordMin": "Password must be at least {min} characters"
-    }
-  },
   "Dashboard": {
     "title": "Dashboard",
-    "welcome": "Hello, {name}!",
     "usersTitle": "Users (prefetched on the server)",
     "empty": "No data",
     "loadError": "Could not load data."

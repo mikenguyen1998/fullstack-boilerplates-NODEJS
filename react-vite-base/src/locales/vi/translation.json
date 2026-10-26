@@ -14,9 +14,7 @@
   },
   "nav": {
     "home": "Trang chủ",
-    "dashboard": "Bảng điều khiển",
-    "login": "Đăng nhập",
-    "logout": "Đăng xuất"
+    "dashboard": "Bảng điều khiển"
   },
   "home": {
     "title": "Bộ khung React sẵn sàng cho production",
@@ -25,23 +23,14 @@
   },
   "dashboard": {
     "title": "Bảng điều khiển",
-    "welcome": "Chào mừng trở lại, {{name}}!",
+    "welcome": "Chào mừng đến với bảng điều khiển.",
     "users": "Người dùng",
     "empty": "Không có người dùng nào.",
     "loadError": "Không thể tải danh sách người dùng."
   },
-  "auth": {
-    "title": "Đăng nhập vào tài khoản",
-    "email": "Email",
-    "password": "Mật khẩu",
-    "submit": "Đăng nhập",
-    "submitting": "Đang đăng nhập...",
-    "failed": "Đăng nhập thất bại: {{message}}"
-  },
   "validation": {
     "required": "Trường này là bắt buộc",
-    "email": "Vui lòng nhập email hợp lệ",
-    "passwordMin": "Mật khẩu phải có ít nhất {{min}} ký tự"
+    "email": "Vui lòng nhập email hợp lệ"
   },
   "errors": {
     "notFoundTitle": "Không tìm thấy trang",

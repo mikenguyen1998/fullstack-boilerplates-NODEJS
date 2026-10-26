@@ -1,5 +1,5 @@
 /**
- * Base application error. `message` should be an i18n key (e.g. "auth.invalidToken")
+ * Base application error. `message` should be an i18n key (e.g. "common.notFound")
  * or a plain message; the error handler translates it when a key exists.
  */
 export class AppError extends Error {
@@ -48,14 +48,6 @@ export class HttpError extends AppError {
 
   static validation(details: unknown, message = 'common.validationFailed') {
     return new HttpError(422, message, 'VALIDATION_ERROR', { details });
-  }
-
-  static unauthorized(message = 'auth.unauthorized') {
-    return new HttpError(401, message, 'UNAUTHORIZED');
-  }
-
-  static forbidden(message = 'auth.forbidden') {
-    return new HttpError(403, message, 'FORBIDDEN');
   }
 
   static notFound(message = 'common.notFound', params?: Record<string, unknown>) {

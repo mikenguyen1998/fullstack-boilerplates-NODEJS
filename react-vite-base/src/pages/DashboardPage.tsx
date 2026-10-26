@@ -3,20 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { useUsersQuery } from '@/hooks/queries/useUsers';
-import { selectUser, useAuthStore } from '@/stores/auth.store';
 
 export default function DashboardPage() {
   const { t } = useTranslation();
-  const user = useAuthStore(selectUser);
   const { data, isPending, isError, error } = useUsersQuery({ page: 1, pageSize: 10 });
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold">{t('dashboard.title')}</h1>
-        <p className="text-slate-600 dark:text-slate-400">
-          {t('dashboard.welcome', { name: user?.name ?? user?.email ?? '' })}
-        </p>
+        <p className="text-slate-600 dark:text-slate-400">{t('dashboard.welcome')}</p>
       </div>
 
       <Card>

@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 
-import { useAuthStore } from '@/stores/auth.store';
 import { useUiStore } from '@/stores/ui.store';
 
 /**
@@ -11,7 +10,6 @@ import { useUiStore } from '@/stores/ui.store';
  */
 export function StoreHydration() {
   useEffect(() => {
-    void useAuthStore.persist.rehydrate();
     void useUiStore.persist.rehydrate();
   }, []);
   return null;

@@ -7,12 +7,11 @@ import {
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 import { SkipThrottle } from '@nestjs/throttler';
-import { Public, SkipTransform } from '../../common/decorators';
+import { SkipTransform } from '../../common/decorators';
 
 const HEAP_LIMIT_BYTES = 512 * 1024 * 1024;
 
 @ApiTags('Health')
-@Public()
 @SkipThrottle()
 @SkipTransform()
 @Controller({ path: 'health', version: VERSION_NEUTRAL })

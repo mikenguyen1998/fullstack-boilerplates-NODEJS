@@ -4,8 +4,6 @@ import { env } from '@/config/env.js';
  * Hand-written OpenAPI 3.1 spec. Keep it next to the routes it documents
  * (or generate it from Zod with e.g. `zod-openapi` when the API grows).
  */
-const errorResponse = { $ref: '#/components/schemas/ErrorResponse' };
-const bearer = [{ bearerAuth: [] }];
 const json = (schema: object) => ({ content: { 'application/json': { schema } } });
 
 export const openApiSpec = {
@@ -17,11 +15,8 @@ export const openApiSpec = {
       'Production-ready Express 5 + TypeScript boilerplate. Add `?lang=vi` or `Accept-Language: vi` for Vietnamese messages.',
   },
   servers: [{ url: env.API_PREFIX }],
-  tags: [{ name: 'Health' }, { name: 'Auth' }, { name: 'Users' }],
+  tags: [{ name: 'Health' }, { name: 'Users' }],
   components: {
-    securitySchemes: {
-      bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-    },
     schemas: {
       User: {
         type: 'object',
@@ -29,20 +24,9 @@ export const openApiSpec = {
           id: { type: 'string', format: 'uuid' },
           email: { type: 'string', format: 'email' },
           name: { type: ['string', 'null'] },
-          role: { type: 'string', enum: ['USER', 'ADMIN'] },
           isActive: { type: 'boolean' },
-          lastLoginAt: { type: ['string', 'null'], format: 'date-time' },
           createdAt: { type: 'string', format: 'date-time' },
           updatedAt: { type: 'string', format: 'date-time' },
-        },
-      },
-      Tokens: {
-        type: 'object',
-        properties: {
-          accessToken: { type: 'string' },
-          refreshToken: { type: 'string' },
-          tokenType: { type: 'string', example: 'Bearer' },
-          expiresIn: { type: 'string', example: '15m' },
         },
       },
       Pagination: {
@@ -68,23 +52,6 @@ export const openApiSpec = {
           requestId: { type: 'string' },
         },
       },
-      RegisterBody: {
-        type: 'object',
-        required: ['email', 'password'],
-        properties: {
-          email: { type: 'string', format: 'email' },
-          password: { type: 'string', minLength: 8, example: 'Passw0rd!' },
-          name: { type: 'string' },
-        },
-      },
-      LoginBody: {
-        type: 'object',
-        required: ['email', 'password'],
-        properties: {
-          email: { type: 'string', format: 'email' },
-          password: { type: 'string' },
-        },
-      },
     },
   },
   paths: {
@@ -102,68 +69,31 @@ export const openApiSpec = {
         responses: { 200: { description: 'Ready' }, 503: { description: 'Degraded' } },
       },
     },
-    '/auth/register': {
+    '/users': {
       post: {
-        tags: ['Auth'],
-        summary: 'Register a new account',
-        requestBody: { required: true, ...json({ $ref: '#/components/schemas/RegisterBody' }) },
-        responses: {
-          201: { description: 'Created' },
-          409: { description: 'Email taken', ...json(errorResponse) },
-          422: { description: 'Validation error', ...json(errorResponse) },
-        },
-      },
-    },
-    '/auth/login': {
-      post: {
-        tags: ['Auth'],
-        summary: 'Login with email & password',
-        requestBody: { required: true, ...json({ $ref: '#/components/schemas/LoginBody' }) },
-        responses: {
-          200: { description: 'OK' },
-          401: { description: 'Invalid credentials', ...json(errorResponse) },
-        },
-      },
-    },
-    '/auth/refresh': {
-      post: {
-        tags: ['Auth'],
-        summary: 'Exchange a refresh token for new tokens',
+        tags: ['Users'],
+        summary: 'Create user',
         requestBody: {
           required: true,
           ...json({
             type: 'object',
-            required: ['refreshToken'],
-            properties: { refreshToken: { type: 'string' } },
+            required: ['email'],
+            properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
           }),
         },
         responses: {
-          200: { description: 'OK', ...json({ $ref: '#/components/schemas/Tokens' }) },
-          401: { description: 'Invalid token', ...json(errorResponse) },
+          201: { description: 'Created' },
+          409: { description: 'Email already exists' },
+          422: { description: 'Validation error' },
         },
       },
-    },
-    '/auth/me': {
-      get: {
-        tags: ['Auth'],
-        summary: 'Current user',
-        security: bearer,
-        responses: {
-          200: { description: 'OK' },
-          401: { description: 'Unauthorized', ...json(errorResponse) },
-        },
-      },
-    },
-    '/users': {
       get: {
         tags: ['Users'],
-        summary: 'List users (ADMIN)',
-        security: bearer,
+        summary: 'List users',
         parameters: [
           { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
           { name: 'limit', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
           { name: 'search', in: 'query', schema: { type: 'string' } },
-          { name: 'role', in: 'query', schema: { type: 'string', enum: ['USER', 'ADMIN'] } },
           {
             name: 'sortBy',
             in: 'query',
@@ -171,7 +101,7 @@ export const openApiSpec = {
           },
           { name: 'sortOrder', in: 'query', schema: { type: 'string', enum: ['asc', 'desc'] } },
         ],
-        responses: { 200: { description: 'Paginated list' }, 403: { description: 'Forbidden' } },
+        responses: { 200: { description: 'Paginated list' } },
       },
     },
     '/users/{id}': {
@@ -180,20 +110,17 @@ export const openApiSpec = {
       ],
       get: {
         tags: ['Users'],
-        summary: 'Get user (ADMIN)',
-        security: bearer,
+        summary: 'Get user',
         responses: { 200: { description: 'OK' }, 404: { description: 'Not found' } },
       },
       patch: {
         tags: ['Users'],
-        summary: 'Update user (ADMIN)',
-        security: bearer,
+        summary: 'Update user',
         requestBody: {
           ...json({
             type: 'object',
             properties: {
               name: { type: 'string' },
-              role: { type: 'string', enum: ['USER', 'ADMIN'] },
               isActive: { type: 'boolean' },
             },
           }),
@@ -202,8 +129,7 @@ export const openApiSpec = {
       },
       delete: {
         tags: ['Users'],
-        summary: 'Delete user (ADMIN)',
-        security: bearer,
+        summary: 'Delete user',
         responses: { 200: { description: 'OK' }, 404: { description: 'Not found' } },
       },
     },

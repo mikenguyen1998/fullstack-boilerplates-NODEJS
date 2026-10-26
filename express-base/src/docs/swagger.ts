@@ -13,7 +13,6 @@ export function setupSwagger(app: Express): void {
     swaggerUi.serve,
     swaggerUi.setup(openApiSpec, {
       customSiteTitle: 'Express Base API Docs',
-      swaggerOptions: { persistAuthorization: true },
     }),
   );
 }

@@ -3,16 +3,14 @@ import type { Prisma } from '@/generated/prisma/client.js';
 import { HttpError } from '@/utils/errors.js';
 import { buildPaginationMeta, getPagination } from '@/utils/pagination.js';
 
-import type { ListUsersQuery, UpdateUserBody } from './user.schema.js';
+import type { CreateUserBody, ListUsersQuery, UpdateUserBody } from './user.schema.js';
 
-/** Fields safe to expose publicly (never return passwordHash / tokenVersion). */
+/** Fields returned by the user API. */
 export const publicUserSelect = {
   id: true,
   email: true,
   name: true,
-  role: true,
   isActive: true,
-  lastLoginAt: true,
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.UserSelect;
@@ -20,9 +18,12 @@ export const publicUserSelect = {
 export type PublicUser = Prisma.UserGetPayload<{ select: typeof publicUserSelect }>;
 
 export const userService = {
+  async create(data: CreateUserBody): Promise<PublicUser> {
+    return prisma.user.create({ data, select: publicUserSelect });
+  },
+
   async list(query: ListUsersQuery) {
     const where: Prisma.UserWhereInput = {
-      ...(query.role ? { role: query.role } : {}),
       ...(query.search
         ? {
             OR: [

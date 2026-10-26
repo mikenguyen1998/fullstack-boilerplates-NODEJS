@@ -30,15 +30,15 @@ describe('Health', () => {
     expect(res.body).toMatchObject({ success: false, error: { code: 'NOT_FOUND' } });
   });
 
-  it('protects /auth/me with JWT', async () => {
+  it('does not expose authentication routes', async () => {
     const res = await request(app).get('/api/v1/auth/me');
 
-    expect(res.status).toBe(401);
-    expect(res.body.error.code).toBe('UNAUTHORIZED');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('validates request body with Zod', async () => {
-    const res = await request(app).post('/api/v1/auth/login').send({ email: 'not-an-email' });
+    const res = await request(app).patch('/api/v1/users/not-a-uuid').send({ name: '' });
 
     expect(res.status).toBe(422);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');

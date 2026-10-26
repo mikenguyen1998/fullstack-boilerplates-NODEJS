@@ -18,11 +18,6 @@ export const appConfig = registerAs('app', () => ({
   fallbackLanguage: process.env.FALLBACK_LANGUAGE ?? 'en',
   throttleTtlMs: parseInt(process.env.THROTTLE_TTL_MS ?? '60000', 10),
   throttleLimit: parseInt(process.env.THROTTLE_LIMIT ?? '100', 10),
-  apiKeys: (process.env.API_KEYS ?? '')
-    .split(',')
-    .map((k) => k.trim())
-    .filter(Boolean),
-  bcryptSaltRounds: parseInt(process.env.BCRYPT_SALT_ROUNDS ?? '10', 10),
 }));
 
 export type AppConfig = ReturnType<typeof appConfig>;

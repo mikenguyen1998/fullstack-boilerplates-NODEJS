@@ -38,18 +38,18 @@ describe('App (e2e)', () => {
       });
   });
 
-  it('GET /api/v1/auth/me without token -> 401 with error shape', () => {
+  it('GET /api/v1/auth/me returns 404', () => {
     return request(app.getHttpServer())
       .get('/api/v1/auth/me')
-      .expect(401)
+      .expect(404)
       .expect(({ body }) => {
-        expect(body).toMatchObject({ success: false, statusCode: 401 });
+        expect(body).toMatchObject({ success: false, statusCode: 404 });
       });
   });
 
-  it('POST /api/v1/auth/register validates payload -> 400', () => {
+  it('POST /api/v1/users validates payload without credentials -> 400', () => {
     return request(app.getHttpServer())
-      .post('/api/v1/auth/register')
+      .post('/api/v1/users')
       .send({ email: 'not-an-email' })
       .expect(400)
       .expect(({ body }) => {
@@ -57,6 +57,4 @@ describe('App (e2e)', () => {
         expect(Array.isArray(body.errors)).toBe(true);
       });
   });
-
-  // TODO: thêm flow register -> login -> me -> refresh -> logout với DB test riêng
 });
