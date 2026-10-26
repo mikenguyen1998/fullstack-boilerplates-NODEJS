@@ -31,11 +31,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - project: react-vite-base
+          - project: react-withoutauth
             lint: lint
-          - project: web-base
+          - project: react-auth
             lint: lint
-          - project: nextjs-base
+          - project: nextjs-auth
+            lint: lint
+          - project: nextjs-withoutauth
             lint: lint
           - project: express-base
             lint: lint
@@ -52,8 +54,7 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: ${{ matrix.project }}/package-lock.json
-      - if: matrix.project != 'web-base'
-        run: cp .env.example .env
+      - run: if [ -f .env.example ]; then cp .env.example .env; fi
       - run: npm ci
       - if: matrix.pre
         run: ${{ matrix.pre }}

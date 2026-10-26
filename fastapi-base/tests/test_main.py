@@ -34,7 +34,7 @@ def test_invalid_example(payload):
     assert client.post("/api/v1/examples", json=payload).status_code == 422
 
 
-def test_openapi_has_no_authentication():
+def test_public_example_remains_in_openapi():
     response = client.get("/openapi.json")
     assert response.status_code == 200
     schema = response.json()

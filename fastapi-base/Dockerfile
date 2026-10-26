@@ -7,7 +7,9 @@ WORKDIR /app
 COPY pyproject.toml ./
 COPY app ./app
 RUN pip install --no-cache-dir . \
-    && useradd --create-home appuser
+    && useradd --create-home appuser \
+    && mkdir /app/data \
+    && chown appuser:appuser /app/data
 
 USER appuser
 EXPOSE 8000

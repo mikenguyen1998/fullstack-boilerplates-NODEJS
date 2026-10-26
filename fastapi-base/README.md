@@ -1,39 +1,67 @@
-# fastapi-base — Without Authentication
+# fastapi-base
 
-Independent Python 3.10+ backend starter using FastAPI, Pydantic and Uvicorn.
-All endpoints are public. No authentication or database setup is required.
+Python 3.10+ backend starter with public examples and optional server-side session
+authentication for `react-auth` and `nextjs-auth`. Uses FastAPI, Pydantic, Uvicorn,
+and the Python standard library for password hashing and SQLite session storage.
 
 ## Setup
 
-Run these commands inside `fastapi-base`:
+Run inside `fastapi-base`:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e '.[dev]'
+export AUTH_EMAIL=owner@example.com
+export AUTH_PASSWORD_HASH="$(python -m app.passwords)"
 uvicorn app.main:app --reload
 ```
 
-The API runs at `http://127.0.0.1:8000`. Interactive Swagger documentation is at
-`/docs`, ReDoc at `/redoc`, and the OpenAPI schema at `/openapi.json`.
+The password command prompts twice and requires at least 12 characters. It
+outputs a salted PBKDF2-SHA256 hash, not the password. Keep the hash in your local
+secret configuration. Without an email and hash, auth routes return `503`; public
+routes still work. No default account or registration endpoint is provided.
+
+API: `http://127.0.0.1:8000`. Swagger: `/docs`. ReDoc: `/redoc`.
+OpenAPI: `/openapi.json`.
 
 ## Endpoints
 
 | Method | Path | Behavior |
 | --- | --- | --- |
 | GET | `/health` | Returns `{"status":"ok"}` |
-| POST | `/api/v1/examples` | Validates and echoes a JSON body without storing it |
+| POST | `/api/v1/examples` | Validates and echoes `name` and `quantity`; no persistence |
+| POST | `/api/auth/login` | Validates email/password and sets an HttpOnly session cookie |
+| GET | `/api/auth/session` | Returns `{ "email": "..." }` or `401` for an invalid/expired session |
+| POST | `/api/auth/logout` | Revokes the session and clears the cookie; returns `204` |
 
-```bash
-curl http://127.0.0.1:8000/health
-curl -X POST http://127.0.0.1:8000/api/v1/examples \
-  -H 'Content-Type: application/json' \
-  -d '{"name":"Sample","quantity":2}'
-```
+The public example trims names and accepts 1–100 characters. Quantity must be an
+integer from 1–1000. Invalid bodies return `422`.
 
-Names are trimmed and must contain 1–100 characters. Quantity must be an integer
-from 1–1000. Invalid input returns FastAPI's standard `422` validation response.
-Add application routes to `app/main.py`; introduce database storage when needed.
+Auth POST requests require `Origin` matching `AUTH_ORIGINS` and
+`X-CSRF-Protection: 1`. Browser apps use same-origin proxies, so cross-origin
+credentialed CORS is not enabled. Session responses are not cached.
+
+## Configuration
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `AUTH_EMAIL` | Unset | Single account email |
+| `AUTH_PASSWORD_HASH` | Unset | Output of `python -m app.passwords` |
+| `AUTH_DATABASE` | `data/auth.sqlite3` | Persistent SQLite sessions and login attempt counters |
+| `AUTH_ORIGINS` | `http://localhost:5173,http://localhost:3000` | Exact allowed frontend origins, comma-separated |
+| `AUTH_COOKIE_SECURE` | `false` | Set to `true` under HTTPS |
+
+Sessions last eight hours. Only SHA-256 hashes of random session tokens are
+stored in SQLite; the cookie contains the opaque token and uses HttpOnly,
+SameSite=Lax, and Path=/. Login replaces the current session; logout revokes it.
+There is no JWT, refresh token, browser token storage, or password-reset flow.
+
+Login is limited to five attempts per minute across the configured account,
+including attempts with an unknown email. The limit cannot be bypassed by changing
+forwarded IP headers. For a multi-user service, use a managed auth system or
+shared database and per-user/IP rate limiting.
+Keep one backend instance with persistent local storage for this sample.
 
 ## Checks
 
@@ -43,11 +71,20 @@ ruff format --check .
 python -m pytest
 ```
 
+Tests cover public routes, credential failures, session persistence, rotation,
+expiry, logout revocation, cookie tampering, CSRF, and login throttling.
+
 ## Docker
+
+With `AUTH_EMAIL` and `AUTH_PASSWORD_HASH` exported in your shell:
 
 ```bash
 docker build -t fastapi-base .
-docker run --rm -p 8000:8000 fastapi-base
+docker run --rm -p 8000:8000 \
+  -e AUTH_EMAIL -e AUTH_PASSWORD_HASH \
+  -v fastapi-auth-data:/app/data fastapi-base
 ```
 
-The container runs Uvicorn as a non-root user without development auto-reload.
+The container runs as a non-root user and persists sessions in `/app/data`.
+The auth frontend folders also include Compose files for running both services.
+For HTTPS deployment, set `AUTH_COOKIE_SECURE=true` and exact `AUTH_ORIGINS`.

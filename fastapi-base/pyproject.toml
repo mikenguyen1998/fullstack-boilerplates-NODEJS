@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "fastapi-base"
 version = "1.0.0"
-description = "Python FastAPI backend starter without authentication"
+description = "Python FastAPI backend starter with optional session authentication"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.115,<1",
