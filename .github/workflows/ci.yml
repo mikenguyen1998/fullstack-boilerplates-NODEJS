@@ -6,6 +6,24 @@ on:
   pull_request:
 
 jobs:
+  python:
+    name: fastapi-base
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: fastapi-base
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: fastapi-base/pyproject.toml
+      - run: python -m pip install -e '.[dev]'
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: python -m pytest
+
   check:
     name: ${{ matrix.project }}
     runs-on: ubuntu-latest
@@ -14,6 +32,8 @@ jobs:
       matrix:
         include:
           - project: react-vite-base
+            lint: lint
+          - project: web-base
             lint: lint
           - project: nextjs-base
             lint: lint
@@ -32,7 +52,8 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: ${{ matrix.project }}/package-lock.json
-      - run: cp .env.example .env
+      - if: matrix.project != 'web-base'
+        run: cp .env.example .env
       - run: npm ci
       - if: matrix.pre
         run: ${{ matrix.pre }}
