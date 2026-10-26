@@ -32,15 +32,73 @@ Sessions live in SQLite, expire after eight hours, rotate on login, and are
 revoked on logout. Login and logout require an allowed Origin and a CSRF header.
 There is no registration, password reset, role system, or external auth service.
 
-## Get started
+## Get one base
+
+Use Git sparse checkout to download one sample without checking out the other
+bases. Replace `react-withoutauth` with the folder you want from the table above.
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse \
+  https://github.com/mikenguyen1998/fullstack-boilerplates-NODEJS.git my-project
+cd my-project
+git sparse-checkout set react-withoutauth
+cd react-withoutauth
+cp .env.example .env
+npm ci
+npm run dev
+```
+
+Sparse checkout keeps repository-level files such as README and LICENSE, but
+only checks out the selected sample folder. Follow that folder's README for its
+setup commands: FastAPI uses Python, and Express/NestJS need PostgreSQL and
+migrations rather than the frontend commands above.
+
+### Auth templates need the session backend
+
+For `react-auth` or `nextjs-auth`, select the frontend **and** `fastapi-base`:
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse \
+  https://github.com/mikenguyen1998/fullstack-boilerplates-NODEJS.git my-project
+cd my-project
+git sparse-checkout set react-auth fastapi-base # or nextjs-auth fastapi-base
+```
+
+Keep these folders next to each other so the provided Docker Compose paths work.
+Then follow [Session authentication](#session-authentication) and the setup
+commands below. The frontend alone needs an existing compatible session API.
+
+### Start your own repository
+
+The sparse clone still belongs to this boilerplate repository. To make a public
+base an independent project, run this from the sparse clone's root **before
+installing dependencies**:
+
+```bash
+cp -R react-withoutauth ../my-app
+cp LICENSE ../my-app/LICENSE
+cd ../my-app
+git init
+```
+
+Use a new, empty destination. The copied folder has no original Git history or
+remote. For an auth app, instead copy both the auth frontend and `fastapi-base`
+into a new parent folder, preserve their sibling layout, and initialize Git in
+that parent folder. Copy the root LICENSE there too.
+
+## Get all bases
+
+To explore every sample, clone the complete repository:
+
+```bash
+git clone https://github.com/mikenguyen1998/fullstack-boilerplates-NODEJS.git
+cd fullstack-boilerplates-NODEJS
+```
+
+## Run your selected base
 
 Use Node.js 24 for the web templates and Node.js backends. FastAPI requires
 Python 3.10+; its CI and Docker image use Python 3.12.
-
-```bash
-git clone git@github.com:mikenguyen1998/fullstack-boilerplates-NODEJS.git
-cd fullstack-boilerplates-NODEJS
-```
 
 For an authenticated web app, start FastAPI in one terminal:
 
