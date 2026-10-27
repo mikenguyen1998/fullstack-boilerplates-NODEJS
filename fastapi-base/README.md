@@ -86,5 +86,7 @@ docker run --rm -p 8000:8000 \
 ```
 
 The container runs as a non-root user and persists sessions in `/app/data`.
-The auth frontend folders also include Compose files for running both services.
+The auth frontends can use this backend by setting their `AUTH_BACKEND_URL` to
+its reachable origin. Their Compose files run only the frontend; start this
+backend separately.
 For HTTPS deployment, set `AUTH_COOKIE_SECURE=true` and exact `AUTH_ORIGINS`.

@@ -1,32 +1,56 @@
 # react-auth
 
 Minimal React + Vite + TypeScript web starter with login, logout, and a protected
-dashboard. Home is public. FastAPI owns the server-side sessions and credentials.
-No JWT, token storage, registration, or role system is included.
+dashboard. Home is public. Connect it to any backend that implements the session
+API below: Express, NestJS, FastAPI, or another framework. Credentials and session
+storage belong to the backend.
 
 ## Setup
 
-Start [FastAPI](../fastapi-base/README.md) with a configured email/password hash
-in one terminal. Then run inside `react-auth`, using Node.js 24:
+Use Node.js 24. Start your chosen session backend, then run inside `react-auth`:
 
 ```bash
+cp .env.example .env
+# Set AUTH_BACKEND_URL to your backend's origin, e.g. http://localhost:8080.
 npm ci
 npm run dev
 ```
 
-Open `http://localhost:5173`. Vite proxies `/api/auth` to
-`http://127.0.0.1:8000`, so browser requests and cookies stay on the web origin.
-Use `localhost`, not `127.0.0.1`, unless you also change `AUTH_ORIGINS` on FastAPI.
+Open `http://localhost:5173`. Vite loads `AUTH_BACKEND_URL` from `.env` and proxies
+`/api/auth` there. The URL is used by the server and is not exposed in the browser
+bundle. Supply an origin without a trailing slash or API path. Restart Vite after
+changing it. The default is `http://127.0.0.1:8080`.
+
+Allow the exact frontend origin on the backend, including scheme and port.
 The dev server uses port 5173 strictly to keep that origin consistent.
+Log in with credentials managed by your backend.
 
-Log in with the account configured on FastAPI. The `/dashboard` loader validates
-the session with the backend and redirects unauthorized visitors to `/login`.
-The API must also validate sessions on any private data routes you add; client
-routing alone does not protect backend data. Logout revokes the session before
-navigating away. Errors are shown without treating a backend outage as login.
+## Backend session contract
 
-Edit `src/pages.tsx` for login and dashboard, `src/router.tsx` for routing, and
-`src/styles.css` for styling.
+| Endpoint                | Expected behavior                                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `POST /api/auth/login`  | Accept JSON `{ "email": "...", "password": "..." }`; return `200` and a session cookie, or `401` for invalid credentials |
+| `GET /api/auth/session` | Validate the session cookie and return `200` with `{ "email": "..." }`, or `401`                                         |
+| `POST /api/auth/logout` | Revoke the session, clear the cookie, and return `204`                                                                   |
+
+The backend must issue an HttpOnly, host-only cookie with `Path=/`,
+`SameSite=Lax`, and `Secure` under HTTPS. The browser manages the cookie; React
+does not read or store its token, and any cookie name can be used.
+Auth POST requests include `X-CSRF-Protection: 1`; validate it and the original
+frontend Origin on the backend. Auth responses should use `Cache-Control: no-store`.
+The proxy forwards cookies, Set-Cookie, Origin, and the CSRF header.
+
+The `/dashboard` loader validates the backend session and redirects unauthorized
+visitors to `/login`. Backend private-data routes must also validate the session.
+Errors are shown without treating a backend outage as a logged-out session.
+No JWT, browser token storage, registration, or roles are built into this frontend.
+
+For a different API contract, adapt `src/auth.ts`, `src/pages.tsx`, and
+`src/router.tsx`, plus the proxy paths if needed. Edit `src/styles.css` for styling.
+
+The repository's `fastapi-base` is an optional example implementation. Express
+and NestJS bases need matching auth routes added before they can serve this app.
+No sibling backend directory is required.
 
 ## Checks
 
@@ -40,18 +64,18 @@ npm run format:check
 
 ## Docker
 
-Export `AUTH_EMAIL` and `AUTH_PASSWORD_HASH` in this terminal using your configured
-account and the generated hash. Then run:
+Start your backend separately. Then provide a URL reachable from the frontend
+container. For a backend running on your host at port 8080:
 
 ```bash
-docker compose up --build
+AUTH_BACKEND_URL=http://host.docker.internal:8080 docker compose up --build
 ```
 
-Open `http://localhost:8080`. Compose runs Nginx and FastAPI together; Nginx proxies
-`/api/auth` and falls back to `index.html` for frontend routes. Session storage
-uses a named volume. The Nginx image expects a reachable `backend:8000`, so use
-Compose or supply that backend hostname when running it yourself.
+Open `http://localhost:5173`. Compose runs only Nginx serving the frontend.
+Its startup template substitutes `AUTH_BACKEND_URL` into the auth proxy.
+Use a service hostname or HTTPS origin instead when the backend runs elsewhere.
+`localhost` inside the container refers to that container, not your host backend.
 
-For another host, update the backend's `AUTH_ORIGINS` and the Nginx upstream.
-For HTTPS, set `AUTH_COOKIE_SECURE=true` on the backend. `npm run preview` only
-serves built assets; use Compose for a production-style auth preview.
+Configure your backend to trust `http://localhost:5173`. For HTTPS deployment,
+enable Secure cookies on the backend. `npm run preview` only serves built assets;
+use Compose for a production-style auth preview.

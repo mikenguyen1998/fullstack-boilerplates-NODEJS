@@ -1,36 +1,60 @@
 # nextjs-auth
 
 Minimal Next.js App Router + TypeScript web starter with login, logout, and a
-protected server-rendered dashboard. Home is public. FastAPI owns credentials
-and server-side sessions; no JWT, browser token storage, registration, or roles.
+protected server-rendered dashboard. Connect it to any backend implementing the
+session API below: Express, NestJS, FastAPI, or another framework. The backend
+owns credentials and sessions; the frontend has no JWT or browser token storage.
 
 ## Setup
 
-Start [FastAPI](../fastapi-base/README.md) with a configured email/password hash
-in one terminal. Then run inside `nextjs-auth`, using Node.js 24:
+Use Node.js 24. Start your chosen session backend, then run inside `nextjs-auth`:
 
 ```bash
 cp .env.example .env
+# Set AUTH_BACKEND_URL to your backend's origin.
+# Set AUTH_SESSION_COOKIE to the session cookie name issued by that backend.
 npm ci
 npm run dev
 ```
 
-Open `http://localhost:3000`. Log in with the account configured on FastAPI.
-`AUTH_BACKEND_URL` defaults to `http://127.0.0.1:8000` and is server-only.
-The `/api/auth/[action]` route forwards only login, session, and logout to FastAPI,
-including the HttpOnly cookie and the original CSRF headers. No general-purpose
-backend proxy is exposed.
+Open `http://localhost:3000`. Log in with credentials managed by your backend.
+`AUTH_BACKEND_URL` is server-only and defaults to `http://127.0.0.1:8080`.
+Use an origin without a trailing slash or API path. `AUTH_SESSION_COOKIE` defaults
+to `app_session`; for example, set it to `connect.sid` for a backend using that
+cookie name. Restart the server after changing configuration.
 
-The dashboard calls `requireSession()` on the server. A cookie alone is never
-accepted as proof of login: FastAPI validates the stored session before the page
-renders. Private fetches disable caching. Call this helper in future protected
-pages and validate sessions again on any private backend routes you add.
+The `/api/auth/[action]` route forwards only login, session, and logout to the
+configured backend, including the session cookie and original CSRF headers.
+The dashboard calls `requireSession()` on the server: a cookie alone is never
+accepted as proof of login. The backend validates the session before rendering.
+Private fetches disable caching.
 
-Use `localhost`, not `127.0.0.1`, unless you change FastAPI's `AUTH_ORIGINS`.
-Keep port 3000 or update the allowed origin if you choose another port.
+## Backend session contract
 
-Edit pages under `src/app`, session validation in `src/lib/session.ts`, and
-styling in `src/app/globals.css`.
+| Endpoint                | Expected behavior                                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `POST /api/auth/login`  | Accept JSON `{ "email": "...", "password": "..." }`; return `200` and a session cookie, or `401` for invalid credentials |
+| `GET /api/auth/session` | Validate the session cookie and return `200` with `{ "email": "..." }`, or `401`                                         |
+| `POST /api/auth/logout` | Revoke the session, clear the cookie, and return `204`                                                                   |
+
+Issue an HttpOnly, host-only cookie with `Path=/`, `SameSite=Lax`, and `Secure`
+under HTTPS. Match its name with `AUTH_SESSION_COOKIE`. Use the single session
+cookie for authentication; other cookies are not forwarded to the backend.
+The proxy passes Set-Cookie headers back to the browser.
+
+Auth POST requests include `X-CSRF-Protection: 1`. The backend must validate it
+and the original frontend Origin; allow the exact frontend origin including
+scheme and port. Auth responses should use `Cache-Control: no-store`.
+Call `requireSession()` in future protected pages and validate sessions on
+private backend routes too. Registration and roles belong to your backend.
+
+For another API contract, adapt `src/lib/session.ts`, `src/app/api/auth/[action]/route.ts`,
+`src/app/login/page.tsx`, and `src/app/dashboard/logout.tsx`. Styling lives in
+`src/app/globals.css`.
+
+The repository's `fastapi-base` is an optional example implementation. Express
+and NestJS bases need matching auth routes added before they can serve this app.
+No sibling backend directory is required.
 
 ## Checks
 
@@ -44,17 +68,19 @@ npm run format:check
 
 ## Docker
 
-Export `AUTH_EMAIL` and `AUTH_PASSWORD_HASH` in this terminal using your configured
-account and generated hash. Then run:
+Start your backend separately. Supply a URL reachable from the frontend container.
+For a backend running on your host at port 8080:
 
 ```bash
-docker compose up --build
+AUTH_BACKEND_URL=http://host.docker.internal:8080 docker compose up --build
 ```
 
-Open `http://localhost:3000`. Compose runs Next.js and FastAPI together, with a
-named session volume. `AUTH_BACKEND_URL=http://backend:8000` is set at runtime.
+Open `http://localhost:3000`. Compose runs only Next.js; it does not select or
+start a backend. Set `AUTH_SESSION_COOKIE` in `.env` or your shell if it differs
+from `app_session`. Use a service hostname or HTTPS origin for a remote backend.
+`localhost` inside the container refers to the container, not your host backend.
 
-For production, set an exact frontend `AUTH_ORIGINS`, enable HTTPS, and set
-`AUTH_COOKIE_SECURE=true` on FastAPI. To run a local production build, use
-`npm run build` followed by `npm start`. The postbuild step copies static assets
-into Next.js's standalone output.
+For production, enable HTTPS, use Secure cookies, and configure the backend's
+trusted frontend origins. `AUTH_BACKEND_URL` is read at runtime. For a local
+production build, run `npm run build` then `npm start`; the postbuild step copies
+static assets into the standalone output.

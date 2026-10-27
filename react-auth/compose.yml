@@ -2,17 +2,8 @@ services:
   web:
     build: .
     ports:
-      - '8080:80'
-    depends_on:
-      - backend
-  backend:
-    build: ../fastapi-base
+      - '5173:80'
     environment:
-      AUTH_EMAIL: ${AUTH_EMAIL:?Set AUTH_EMAIL}
-      AUTH_PASSWORD_HASH: ${AUTH_PASSWORD_HASH:?Set AUTH_PASSWORD_HASH}
-      AUTH_ORIGINS: http://localhost:8080
-      AUTH_DATABASE: /app/data/auth.sqlite3
-    volumes:
-      - auth-data:/app/data
-volumes:
-  auth-data:
+      AUTH_BACKEND_URL: ${AUTH_BACKEND_URL:?Set AUTH_BACKEND_URL to your backend origin}
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'

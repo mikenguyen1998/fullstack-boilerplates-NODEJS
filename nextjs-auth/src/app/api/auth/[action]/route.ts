@@ -9,11 +9,12 @@ async function forward(request: NextRequest, action: string) {
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
-  const token = request.cookies.get('app_session')?.value;
-  if (token) headers.set('Cookie', `app_session=${encodeURIComponent(token)}`);
+  const cookieName = process.env.AUTH_SESSION_COOKIE ?? 'app_session';
+  const token = request.cookies.get(cookieName)?.value;
+  if (token) headers.set('Cookie', `${cookieName}=${encodeURIComponent(token)}`);
   try {
     const upstream = await fetch(
-      `${process.env.AUTH_BACKEND_URL ?? 'http://127.0.0.1:8000'}/api/auth/${action}`,
+      `${process.env.AUTH_BACKEND_URL ?? 'http://127.0.0.1:8080'}/api/auth/${action}`,
       {
         method: request.method,
         headers,

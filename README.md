@@ -22,17 +22,54 @@ replaced by `react-auth`; its layout is reused in the minimal auth templates.
 
 ## Session authentication
 
-For these web templates, use a server-side session identified by an HttpOnly
-cookie. Both auth frontends connect to `fastapi-base` through a same-origin
-`/api/auth` proxy. No JWT, refresh-token flow, or browser token storage is needed.
+Both auth frontends can connect to **any backend that implements the session API
+contract below**: Express, NestJS, FastAPI, or another framework. Set
+`AUTH_BACKEND_URL` to your backend's origin. Requests use a same-origin
+`/api/auth` proxy, and the backend owns credentials, session storage, expiry,
+and logout revocation. No JWT, refresh-token flow, or browser token storage is
+required.
 
-The backend provides `POST /api/auth/login`, `GET /api/auth/session`, and
-`POST /api/auth/logout`. Configure one account using an email and password hash.
-Sessions live in SQLite, expire after eight hours, rotate on login, and are
-revoked on logout. Login and logout require an allowed Origin and a CSRF header.
-There is no registration, password reset, role system, or external auth service.
+| Endpoint | Contract |
+| --- | --- |
+| `POST /api/auth/login` | Accept `{ "email": "...", "password": "..." }`; return `200` and set the session cookie, or `401` for invalid credentials |
+| `GET /api/auth/session` | Validate the cookie; return `200` with `{ "email": "..." }`, or `401` for an invalid/expired session |
+| `POST /api/auth/logout` | Revoke the session, clear its cookie, and return `204` |
+
+Use an HttpOnly, host-only cookie with `Path=/`, `SameSite=Lax`, and `Secure`
+under HTTPS. The backend must validate the frontend's exact Origin and
+`X-CSRF-Protection: 1` on auth POST requests, and disable caching on auth
+responses. Next.js also needs `AUTH_SESSION_COOKIE` set to the backend's cookie
+name; the default is `app_session`. React lets the browser manage cookies.
+If your backend uses different paths or response shapes, adapt the frontend
+session calls and proxy to match.
+
+`fastapi-base` is one optional implementation of this contract, with a single
+configured account and SQLite sessions. The Express and NestJS samples currently
+have public APIs; add matching auth routes before using either as an auth backend.
 
 ## Get one base
+
+### Code only, keeping the base folder name
+
+Use [degit](https://github.com/Rich-Harris/degit) to download a single base without
+the repository's Git history or `.git` folder:
+
+```bash
+npx degit mikenguyen1998/fullstack-boilerplates-NODEJS/react-auth react-auth
+cd react-auth
+cp .env.example .env
+# Configure AUTH_BACKEND_URL for your chosen session backend.
+npm ci
+npm run dev
+```
+
+The source folder and destination are both `react-auth`, so its name stays the
+same. Replace both occurrences with any base name in the table, such as
+`nextjs-auth`, `react-withoutauth`, or `fastapi-base`. Use an empty destination
+and follow the selected base's README for its own setup commands.
+Keep the repository's [MIT license notice](./LICENSE) when redistributing code.
+
+### Sparse clone with Git history
 
 Use Git sparse checkout to download one sample without checking out the other
 bases. Replace `react-withoutauth` with the folder you want from the table above.
@@ -53,24 +90,25 @@ only checks out the selected sample folder. Follow that folder's README for its
 setup commands: FastAPI uses Python, and Express/NestJS need PostgreSQL and
 migrations rather than the frontend commands above.
 
-### Auth templates need the session backend
+### Get an auth frontend
 
-For `react-auth` or `nextjs-auth`, select the frontend **and** `fastapi-base`:
+Select only the frontend if you already have a compatible session backend:
 
 ```bash
 git clone --depth 1 --filter=blob:none --sparse \
   https://github.com/mikenguyen1998/fullstack-boilerplates-NODEJS.git my-project
 cd my-project
-git sparse-checkout set react-auth fastapi-base # or nextjs-auth fastapi-base
+git sparse-checkout set react-auth # or nextjs-auth
 ```
 
-Keep these folders next to each other so the provided Docker Compose paths work.
-Then follow [Session authentication](#session-authentication) and the setup
-commands below. The frontend alone needs an existing compatible session API.
+Configure `AUTH_BACKEND_URL` in the selected frontend's `.env`. No particular
+backend folder or sibling directory is required. If you want to try the optional
+Python implementation too, run `git sparse-checkout add fastapi-base` and follow
+its README.
 
 ### Start your own repository
 
-The sparse clone still belongs to this boilerplate repository. To make a public
+The sparse clone still belongs to this boilerplate repository. To make a
 base an independent project, run this from the sparse clone's root **before
 installing dependencies**:
 
@@ -82,9 +120,9 @@ git init
 ```
 
 Use a new, empty destination. The copied folder has no original Git history or
-remote. For an auth app, instead copy both the auth frontend and `fastapi-base`
-into a new parent folder, preserve their sibling layout, and initialize Git in
-that parent folder. Copy the root LICENSE there too.
+remote. For another sample, replace `react-withoutauth` with its folder name.
+Auth frontend folders can also be copied independently and connected to your
+existing backend through `AUTH_BACKEND_URL`.
 
 ## Get all bases
 
@@ -100,30 +138,24 @@ cd fullstack-boilerplates-NODEJS
 Use Node.js 24 for the web templates and Node.js backends. FastAPI requires
 Python 3.10+; its CI and Docker image use Python 3.12.
 
-For an authenticated web app, start FastAPI in one terminal:
-
-```bash
-cd fastapi-base
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e '.[dev]'
-export AUTH_EMAIL=owner@example.com
-export AUTH_PASSWORD_HASH="$(python -m app.passwords)"
-uvicorn app.main:app --reload
-```
-
-The password command prompts for your own password and confirmation. There are
-no default credentials. In a second terminal, start either frontend:
+For an authenticated web app, start your chosen session backend, then run:
 
 ```bash
 cd react-auth # or nextjs-auth
+cp .env.example .env
+# Edit AUTH_BACKEND_URL to point to your backend.
+# Next.js: also match AUTH_SESSION_COOKIE to the backend cookie name.
 npm ci
 npm run dev
 ```
 
 Open `http://localhost:5173` for React or `http://localhost:3000` for Next.js.
-Use `localhost` consistently: allowed origins match exactly, including the port.
-The backend defaults already allow these two frontend origins.
+Configure the backend to trust that exact frontend origin, including its port,
+and log in with an account managed by your backend.
+
+To use the optional Python backend, follow the [FastAPI setup](./fastapi-base/README.md)
+and set `AUTH_BACKEND_URL=http://127.0.0.1:8000` in the frontend. This is an
+example pairing, not a dependency of either auth frontend.
 
 For a public web app, no login or session backend is required:
 
@@ -163,12 +195,11 @@ python -m pytest
 ```
 
 GitHub Actions checks all seven samples. Each sample's README includes its
-Docker commands. The auth templates include Docker Compose for frontend and
-FastAPI together, with a persistent session volume.
+Docker commands. The auth frontend Compose files run only the frontend and
+connect to the backend URL you supply; they do not build or select a backend.
 
-For deployment, enable HTTPS and `AUTH_COOKIE_SECURE=true`, configure exact
-`AUTH_ORIGINS`, and persist the backend's session database. The simple auth
-backend uses one configured account and one SQLite database file; use a managed
-auth system or shared database when the app needs multiple users or replicas.
+For deployment, enable HTTPS, use Secure cookies, configure the backend's trusted
+frontend origins, and persist its session storage. Backend account management,
+rate limiting, expiry, and database choices are independent of the frontend.
 
 [MIT License](./LICENSE)

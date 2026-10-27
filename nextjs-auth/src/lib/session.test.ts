@@ -1,4 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
+import { createServer } from 'node:http';
+import { once } from 'node:events';
 
 vi.mock('server-only', () => ({}));
 const { cookie, redirect } = vi.hoisted(() => ({ cookie: vi.fn(), redirect: vi.fn() }));
@@ -9,7 +11,30 @@ import { requireSession } from './session';
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
   vi.resetAllMocks();
+});
+
+it('validates a session against a configured backend with its own cookie name', async () => {
+  const backend = createServer((request, response) => {
+    const valid =
+      request.url === '/api/auth/session' && request.headers.cookie === 'connect.sid=s%3Aopaque';
+    response.writeHead(valid ? 200 : 401, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(valid ? { email: 'node@example.com' } : {}));
+  });
+  backend.listen(0, '127.0.0.1');
+  await once(backend, 'listening');
+  const address = backend.address();
+  if (!address || typeof address === 'string') throw new Error('No backend address');
+  vi.stubEnv('AUTH_BACKEND_URL', `http://127.0.0.1:${address.port}`);
+  vi.stubEnv('AUTH_SESSION_COOKIE', 'connect.sid');
+  cookie.mockReturnValue({ value: 's:opaque' });
+  try {
+    await expect(requireSession()).resolves.toEqual({ email: 'node@example.com' });
+  } finally {
+    backend.closeAllConnections();
+    await new Promise<void>((resolve) => backend.close(() => resolve()));
+  }
 });
 
 it('redirects before requesting private data when no cookie exists', async () => {
